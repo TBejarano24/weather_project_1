@@ -30,7 +30,7 @@ def upload_to_db(driver, server, database, table, user, password, data):
 
 api_key = 'dbccfc4c26b643c2f0e9d5ed29a9f96d'
 
-api_url = extract_data(api_key, 'berazategui', 'metric')
+api_url = extract_data(api_key, 'cordoba', 'metric')
 
 weather_data = transform_data(api_url)
 
