@@ -57,7 +57,7 @@ def upload_to_db(driver, server, database, table, user, password, data):
 
     print(f'Inserting data in {table}')
 
-    query = f"IF NOT EXISTS (SELECT 1 FROM {table} WHERE ) INSERT INTO {table} (city, countryID, weather, temperature, feels_like, humidity, wind_speed, date_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    query = f"INSERT INTO {table} (city, countryID, weather, temperature, feels_like, humidity, wind_speed, date_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
     cursor.execute(query, (data['name'], data['sys']['country'], data['weather'][0]['description'], data['main']['temp'], data['main']['feels_like'], data['main']['humidity'], data['wind']['speed'], datetime.now()))
 
