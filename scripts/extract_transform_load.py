@@ -14,11 +14,27 @@ cities_list = [
     'parana',
     'formosa',
     'san salvador de jujuy',
-    ''
+    'santa rosa,ar',
+    'la rioja,ar',
+    'mendoza',
+    'posadas',
+    'neuquen',
+    'viedma',
+    'salta',
+    'san juan',
+    'san luis',
+    'rio gallegos',
+    'santiago del estero',
+    'ushuaia',
+    'tucuman'
 ]
 
+api_key = 'dbccfc4c26b643c2f0e9d5ed29a9f96d'
 
 def extract_data(key, city, units, lang = 'en'):
+    
+    print(f'Requesting data for {city}')
+    
     url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={key}&units={units}&lang={lang}'
     
     return url
@@ -30,20 +46,27 @@ def transform_data(url):
     return data
 
 def upload_to_db(driver, server, database, table, user, password, data):
+    
+    print(f'Establishing connection with {server}...')
+    
     conn = pyodbc.connect(f'DRIVER={{{driver}}}; SERVER={server};DATABASE={database};UID={user};PWD={password}')
 
     cursor = conn.cursor()
+    
+    print('Connection succesfully established')
 
-    query = f"INSERT INTO {table} (city, countryID, weather, temperature, feels_like, humidity, wind_speed, date_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    print(f'Inserting data in {table}')
+
+    query = f"IF NOT EXISTS (SELECT 1 FROM {table} WHERE ) INSERT INTO {table} (city, countryID, weather, temperature, feels_like, humidity, wind_speed, date_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
     cursor.execute(query, (data['name'], data['sys']['country'], data['weather'][0]['description'], data['main']['temp'], data['main']['feels_like'], data['main']['humidity'], data['wind']['speed'], datetime.now()))
 
     conn.commit()
     conn.close()
     
-    print('Finnished process')
+    print('Data inserted successfully!')
     
-def upload_to_bigquery (driver, server, database, table, user, password, data):
+def upload_to_bigquery (driver, server, database, table, user, password):
     sql_conn = pyodbc.connect(f'DRIVER={{{driver}}}; SERVER={server};DATABASE={database};UID={user};PWD={password}')
     
     cursor = sql_conn.cursor()
@@ -67,15 +90,17 @@ def upload_to_bigquery (driver, server, database, table, user, password, data):
     
     print("Finnished")
 
-api_key = 'dbccfc4c26b643c2f0e9d5ed29a9f96d'
 
-api_url = extract_data(api_key, 'cordoba', 'metric')
 
-weather_data = transform_data(api_url)
+for city in cities_list:
+    
+    api_url = extract_data(api_key, city, 'metric')
 
-upload_to_db('ODBC Driver 17 for SQL Server', '.\SQLEXPRESS', 'weather_db', 'WeatherData', 'Tommy', 'H1ban4', weather_data)
+    weather_data = transform_data(api_url)
 
-upload_to_bigquery('ODBC Driver 17 for SQL Server', '.\SQLEXPRESS', 'weather_db', 'WeatherData', 'Tommy', 'H1ban4', weather_data)
+    upload_to_db('ODBC Driver 17 for SQL Server', '.\SQLEXPRESS', 'weather_db', 'WeatherData', 'Tommy', 'H1ban4', weather_data)
+
+# upload_to_bigquery('ODBC Driver 17 for SQL Server', '.\SQLEXPRESS', 'weather_db', 'WeatherData', 'Tommy', 'H1ban4')
 
 # conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server}; SERVER=.\SQLEXPRESS;DATABASE=weather_db;UID=Tommy;PWD=H1ban4')
 
