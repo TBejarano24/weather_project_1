@@ -3,6 +3,20 @@ import pyodbc
 from datetime import datetime
 from google.cloud import bigquery
 
+cities_list = [
+    'buenos aires',
+    'rosario',
+    'catamarca',
+    'resistencia',
+    'rawson',
+    'cordoba',
+    'corrientes',
+    'parana',
+    'formosa',
+    'san salvador de jujuy',
+    ''
+]
+
 
 def extract_data(key, city, units, lang = 'en'):
     url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={key}&units={units}&lang={lang}'
